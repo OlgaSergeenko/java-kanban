@@ -43,42 +43,36 @@ public class Manager {
             System.out.println("Для данной подзадачи еще не создан эпик.");
         } else {
             epic.addSubtask(subtask.getId());
-            countStatuses(epic);
             computeEpicStatus(epic);
         }
     }
 
     public void computeEpicStatus(Epic epic) {
-        ArrayList<Integer> subtasks = epic.getSubtasks();
-        if (subtasks.size() == 0) {
-            epic.setStatus(Status.NEW);
-            return;
-        }
-        if (epic.getQtyNew() == subtasks.size()) {
-            epic.setStatus(Status.NEW);
-        } else if (epic.getQtyDone() == subtasks.size()) {
-            epic.setStatus(Status.DONE);
-        } else {
-            epic.setStatus(Status.IN_PROGRESS);
-        }
-    }
-
-    public void countStatuses(Epic epic) {
-        int counterNEW = 0;
-        int counterDONE = 0;
+        int counterNew = 0;
+        int counterDone = 0;
         ArrayList<Integer> subtasks = epic.getSubtasks();
         if (subtasks == null) {
             System.out.println("В данном эпике нет указанной подзадачи.");
+            return;
         } else {
             for (Integer sub : subtasks) {
                 Subtask subtask = subtaskList.get(sub);
-                if (subtask.getStatus().equals(Status.NEW)) {
-                    counterNEW++;
-                    epic.setQtyNew(counterNEW);
-                } else if (subtask.getStatus().equals(Status.DONE)) {
-                    counterDONE++;
-                    epic.setQtyDone(counterDONE);
+                if (subtask.getStatus() == Status.NEW) {
+                    counterNew++;
+                } else if (subtask.getStatus() == Status.DONE) {
+                    counterDone++;
                 }
+            }
+            if (subtasks.size() == 0) {
+                epic.setStatus(Status.NEW);
+                return;
+            }
+            if (counterNew == subtasks.size()) {
+                epic.setStatus(Status.NEW);
+            } else if (counterDone == subtasks.size()) {
+                epic.setStatus(Status.DONE);
+            } else {
+                epic.setStatus(Status.IN_PROGRESS);
             }
         }
     }
@@ -190,7 +184,6 @@ public class Manager {
         if (epic == null) {
             System.out.println("Данная подзадача не входит в указанный эпик.");
         } else {
-            countStatuses(epic);
             computeEpicStatus(epic);
         }
     }
@@ -213,7 +206,6 @@ public class Manager {
                 ArrayList<Integer> subtasks = epic.getSubtasks();
                 subtasks.removeIf(idNumber -> idNumber == subtaskId);
                 subtaskList.remove(subtaskId);
-                countStatuses(epic);
                 computeEpicStatus(epic);
             }
         } else {

@@ -12,7 +12,7 @@ public class Main {
         Task task1 = new Task(manager.generateId(), "Полить цветы", "Взять воду и полить все",
                 Status.NEW);
         manager.createTask(task1);
-       Task task2 = new Task (manager.generateId(),"Сделать проект", "Понять, создать структуру.",
+        Task task2 = new Task (manager.generateId(),"Сделать проект", "Понять, создать структуру.",
                 Status.IN_PROGRESS);
         manager.createTask(task2);
         Epic epic1 = new Epic(manager.generateId(),"Уборка", "Проведение уборки во всех комнатах");
@@ -47,7 +47,7 @@ public class Main {
         manager.createSubtask(subtask6);
 
         Subtask subtask7 = new Subtask(subtask3.getId(), "Собрать вещи Димы", "не забыть книги",
-                Status.IN_PROGRESS, epic2.getId());
+                Status.DONE, epic2.getId());
         manager.updateSubtask(subtask7);
 
         Subtask subtask8 = new Subtask(15, "Выкинуть мусор","Не забыть пакет на балконе",
@@ -67,10 +67,6 @@ public class Main {
         manager.deleteSubtaskById(8);
         manager.deleteTaskById(1);
 
-        manager.deleteAllSubtasks();
-        System.out.println(manager.printSubtaskList());
-
-        manager.deleteEpicById(3);
-
+        System.out.println(manager.printEpicList());
     }
 }
