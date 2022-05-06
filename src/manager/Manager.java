@@ -1,11 +1,18 @@
+package manager;
+
+import tasks.Epic;
+import tasks.Status;
+import tasks.Subtask;
+import tasks.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Manager {
-    private int id;
-    public HashMap<Integer, Task> taskList;
-    public HashMap<Integer, Subtask> subtaskList;
-    public HashMap<Integer, Epic> epicList;
+    protected int id;
+    protected HashMap<Integer, Task> taskList;
+    protected HashMap<Integer, Subtask> subtaskList;
+    protected HashMap<Integer, Epic> epicList;
 
     public Manager() {
         this.id = 0;
@@ -32,9 +39,13 @@ public class Manager {
         subtask.setId(id);
         subtaskList.put(subtask.getId(), subtask);
         Epic epic = epicList.get(subtask.getEpicId());
-        epic.addSubtask(subtask.getId());
-        countStatuses(epic);
-        computeEpicStatus(epic);
+        if (epic == null) {
+            System.out.println("Для данной подзадачи еще не создан эпик.");
+        } else {
+            epic.addSubtask(subtask.getId());
+            countStatuses(epic);
+            computeEpicStatus(epic);
+        }
     }
 
     public void computeEpicStatus(Epic epic) {
@@ -56,14 +67,18 @@ public class Manager {
         int counterNEW = 0;
         int counterDONE = 0;
         ArrayList<Integer> subtasks = epic.getSubtasks();
-        for (Integer sub : subtasks) {
-            Subtask subtask = subtaskList.get(sub);
-            if (subtask.getStatus().equals(Status.NEW)) {
-                counterNEW++;
-                epic.setQtyNew(counterNEW);
-            } else if (subtask.getStatus().equals(Status.DONE)) {
-                counterDONE++;
-                epic.setQtyDone(counterDONE);
+        if (subtasks == null) {
+            System.out.println("В данном эпике нет указанной подзадачи.");
+        } else {
+            for (Integer sub : subtasks) {
+                Subtask subtask = subtaskList.get(sub);
+                if (subtask.getStatus().equals(Status.NEW)) {
+                    counterNEW++;
+                    epic.setQtyNew(counterNEW);
+                } else if (subtask.getStatus().equals(Status.DONE)) {
+                    counterDONE++;
+                    epic.setQtyDone(counterDONE);
+                }
             }
         }
     }
@@ -88,9 +103,13 @@ public class Manager {
         subtaskList.clear();
         for (Integer id : epicList.keySet()) {
             Epic epic = epicList.get(id);
-            ArrayList<Integer> arraylist = epic.getSubtasks();
-            arraylist.clear();
-            computeEpicStatus(epic);
+            if (epic == null) {
+                System.out.println("Список эпиков и подзадач пуст.");
+            } else {
+                ArrayList<Integer> arraylist = epic.getSubtasks();
+                arraylist.clear();
+                computeEpicStatus(epic);
+            }
         }
     }
 
@@ -154,18 +173,26 @@ public class Manager {
 
     public void updateEpic(Epic updatedEpic) {
         Epic epic = epicList.get(updatedEpic.getId());
-        ArrayList<Integer> subtasks = epic.getSubtasks();
-        epicList.remove(updatedEpic.getId());
-        epicList.put(updatedEpic.getId(), updatedEpic);
-        updatedEpic.setSubtasks(subtasks);
+        if (epic == null) {
+            System.out.println("Указанный эпик не найден.");
+        } else {
+            ArrayList<Integer> subtasks = epic.getSubtasks();
+            epicList.remove(updatedEpic.getId());
+            epicList.put(updatedEpic.getId(), updatedEpic);
+            updatedEpic.setSubtasks(subtasks);
+        }
     }
 
     public void updateSubtask(Subtask updatedSubtask) {
         subtaskList.remove(updatedSubtask.getId());
         subtaskList.put(updatedSubtask.getId(), updatedSubtask);
         Epic epic = epicList.get(updatedSubtask.getEpicId());
-        countStatuses(epic);
-        computeEpicStatus(epic);
+        if (epic == null) {
+            System.out.println("Данная подзадача не входит в указанный эпик.");
+        } else {
+            countStatuses(epic);
+            computeEpicStatus(epic);
+        }
     }
 
     public void deleteTaskById(int taskId) {
@@ -180,11 +207,15 @@ public class Manager {
         if (subtaskList.containsKey(subtaskId)) {
             Subtask subtask = subtaskList.get(subtaskId);
             Epic epic = epicList.get(subtask.getEpicId());
-            ArrayList<Integer> subtasks = epic.getSubtasks();
-            subtasks.removeIf(idNumber -> idNumber == subtaskId);
-            subtaskList.remove(subtaskId);
-            countStatuses(epic);
-            computeEpicStatus(epic);
+            if (epic == null) {
+                System.out.println("Эпик с данной подзадачей не найден.");
+            } else {
+                ArrayList<Integer> subtasks = epic.getSubtasks();
+                subtasks.removeIf(idNumber -> idNumber == subtaskId);
+                subtaskList.remove(subtaskId);
+                countStatuses(epic);
+                computeEpicStatus(epic);
+            }
         } else {
             System.out.println("подзадачи с таким номером не существует");
         }
