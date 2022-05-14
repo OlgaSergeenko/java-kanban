@@ -42,8 +42,8 @@ public class Epic extends Task {
         return "Epic{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", subtasks='" + getSubtasks() + '\'' +
-                ", status=" + status +
+//                ", subtasks='" + getSubtasks() + '\'' +
+//                ", status=" + status +
                 '}';
     }
 }

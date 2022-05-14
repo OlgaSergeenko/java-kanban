@@ -44,8 +44,8 @@ public class Task {
         return "tasks.Task{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status='" + status + '\'' +
+//                ", description='" + description + '\'' +
+//                ", status='" + status + '\'' +
                 '}';
     }
 
