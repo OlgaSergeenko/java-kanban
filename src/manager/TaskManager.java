@@ -3,8 +3,7 @@ package manager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-import java.util.HashMap;
-
+import java.util.Map;
 
 public interface TaskManager {
     int generateId();
@@ -15,11 +14,11 @@ public interface TaskManager {
 
     void createSubtask(Subtask subtask);
 
-    HashMap<Integer, Task> printTaskList();
+    Map<Integer, Task> printTaskList();
 
-    HashMap<Integer, Subtask> printSubtaskList();
+    Map<Integer, Subtask> printSubtaskList();
 
-    HashMap<Integer, Epic> printEpicList();
+    Map<Integer, Epic> printEpicList();
 
     void deleteAllTasks();
 
@@ -47,4 +46,5 @@ public interface TaskManager {
 
     void deleteEpicById(int epicId);
 
+    HistoryManager getHistoryManager();
 }

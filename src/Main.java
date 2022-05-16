@@ -1,4 +1,3 @@
-import manager.HistoryManager;
 import manager.Managers;
 import manager.TaskManager;
 import tasks.Epic;
@@ -10,7 +9,6 @@ public class Main {
 
     public static void main(String[] args) {
         TaskManager inMemoryTaskManager = Managers.getDefault();
-        HistoryManager historyManager = Managers.getDefaultHistory();
 
         Task task1 = new Task(inMemoryTaskManager.generateId(), "Полить цветы", "Взять воду и полить все",
                 Status.NEW);
@@ -55,29 +53,29 @@ public class Main {
 
         Subtask subtask8 = new Subtask(15, "Выкинуть мусор","Не забыть пакет на балконе",
                 Status.IN_PROGRESS, 8);
-        inMemoryTaskManager.updateSubtask(subtask8);
-
-        System.out.println(inMemoryTaskManager.printTaskList());
-        System.out.println(inMemoryTaskManager.printSubtaskList());
-        System.out.println(inMemoryTaskManager.printEpicList());
-
-        System.out.println(inMemoryTaskManager.findTaskById(1));
-        System.out.println(inMemoryTaskManager.findSubtaskById(5));
-        System.out.println(inMemoryTaskManager.findEpicById(3));
-
-        System.out.println(historyManager.getHistory());
+//        inMemoryTaskManager.updateSubtask(subtask8);
+//
+//        System.out.println(inMemoryTaskManager.printTaskList());
+//        System.out.println(inMemoryTaskManager.printSubtaskList());
+//        System.out.println(inMemoryTaskManager.printEpicList());
 
         System.out.println(inMemoryTaskManager.findTaskById(1));
         System.out.println(inMemoryTaskManager.findSubtaskById(5));
         System.out.println(inMemoryTaskManager.findEpicById(3));
-        System.out.println(inMemoryTaskManager.findTaskById(1));
 
-        System.out.println(historyManager.getHistory());
+        System.out.println(inMemoryTaskManager.getHistoryManager().getHistory());
 
         System.out.println(inMemoryTaskManager.findTaskById(1));
         System.out.println(inMemoryTaskManager.findSubtaskById(5));
         System.out.println(inMemoryTaskManager.findEpicById(3));
         System.out.println(inMemoryTaskManager.findTaskById(1));
-        System.out.println(historyManager.getHistory());
+
+        System.out.println(inMemoryTaskManager.getHistoryManager().getHistory());
+
+        System.out.println(inMemoryTaskManager.findTaskById(1));
+        System.out.println(inMemoryTaskManager.findSubtaskById(5));
+        System.out.println(inMemoryTaskManager.findEpicById(3));
+        System.out.println(inMemoryTaskManager.findTaskById(1));
+        System.out.println(inMemoryTaskManager.getHistoryManager().getHistory());
     }
 }
