@@ -19,15 +19,6 @@ public class Subtask extends Task {
     }
 
     @Override
-    public String toString() {
-        return "tasks.Subtask{" +
-//                "epicId=" + epicId + '\'' +
-                ", name='" + getName() + '\'' +
-//                "status=" + getStatus() +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -39,5 +30,13 @@ public class Subtask extends Task {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), epicId);
+    }
+
+    @Override
+    public String toString() {
+        return "Subtask{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

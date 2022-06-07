@@ -104,11 +104,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
+        for(Integer taskId : taskList.keySet()) {
+            historyManager.remove(taskId);
+        }
         taskList.clear();
     }
 
     @Override
     public void deleteAllSubtasks() {
+        for(Integer subTaskId : subtaskList.keySet()) {
+            historyManager.remove(subTaskId);
+        }
         subtaskList.clear();
         for (Integer id : epicList.keySet()) {
             Epic epic = epicList.get(id);
@@ -124,12 +130,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllEpics() {
+        for(Integer subTaskId : subtaskList.keySet()) {
+            historyManager.remove(subTaskId);
+        }
+        for(Integer epicId : epicList.keySet()) {
+            historyManager.remove(epicId);
+        }
         subtaskList.clear();
         epicList.clear();
     }
 
     @Override
     public void deleteAllTaskTypes() {
+        historyManager.clear();
         taskList.clear();
         epicList.clear();
         subtaskList.clear();
@@ -142,7 +155,7 @@ public class InMemoryTaskManager implements TaskManager {
             for (Integer idNumber : taskList.keySet()) {
                 if (idNumber == taskId) {
                     task = taskList.get(idNumber);
-                    historyManager.addToHistoryList(task);
+                    historyManager.add(task);
                 }
             }
         } else {
@@ -158,7 +171,7 @@ public class InMemoryTaskManager implements TaskManager {
             for (Integer idNumber : subtaskList.keySet()) {
                 if (idNumber == subtaskId) {
                     subtask = subtaskList.get(idNumber);
-                    historyManager.addToHistoryList(subtask);
+                    historyManager.add(subtask);
                 }
             }
         } else {
@@ -174,7 +187,7 @@ public class InMemoryTaskManager implements TaskManager {
             for (Integer idNumber : epicList.keySet()) {
                 if (idNumber == epicId) {
                     epic = epicList.get(idNumber);
-                    historyManager.addToHistoryList(epic);
+                    historyManager.add(epic);
                 }
             }
         } else {
@@ -217,6 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int taskId) {
         if (taskList.containsKey(taskId)) {
+            historyManager.remove(taskId);
             taskList.remove(taskId);
         } else {
             System.out.println("Задачи с таким номером не существует");
@@ -233,6 +247,7 @@ public class InMemoryTaskManager implements TaskManager {
             } else {
                 ArrayList<Integer> subtasks = epic.getSubtasks();
                 subtasks.removeIf(idNumber -> idNumber == subtaskId);
+                historyManager.remove(subtaskId);
                 subtaskList.remove(subtaskId);
                 computeEpicStatus(epic);
             }
@@ -248,13 +263,13 @@ public class InMemoryTaskManager implements TaskManager {
             ArrayList<Integer> subtasks = epic.getSubtasks();
             for (Integer subtaskId : subtasks) {
                 subtaskList.remove(subtaskId);
+                historyManager.remove(subtaskId);
             }
             subtasks.clear();
             epicList.remove(epicId);
+            historyManager.remove(epicId);
         } else {
             System.out.println("Эпика с таким номером не существует");
         }
     }
-
-
 }
