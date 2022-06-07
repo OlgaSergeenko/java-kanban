@@ -46,8 +46,8 @@ public class Main {
         System.out.println(inMemoryTaskManager.findEpicById(3));
 
         inMemoryTaskManager.deleteTaskById(2);
-        inMemoryTaskManager.deleteEpicById(3);
         inMemoryTaskManager.deleteSubtaskById(5);
+        inMemoryTaskManager.deleteEpicById(3);
 
         System.out.println(inMemoryTaskManager.getHistoryManager().getHistory());
 

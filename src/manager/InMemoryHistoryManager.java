@@ -7,10 +7,9 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
-    protected Map<Integer, Node> historyList;
+    private Map<Integer, Node> historyList;
     private Node firstTask;
     private Node lastTask;
-
 
     public InMemoryHistoryManager() {
         this.historyList = new HashMap<>();
@@ -32,10 +31,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         linkLast(task);
     }
 
-    public void linkLast(Task task) {
-        if (task == null) {
-            return;
-        }
+    private void linkLast(Task task) {
         if (firstTask == null) {
             Node newNode = new Node(null, task, null);
             firstTask = newNode;
@@ -50,21 +46,18 @@ public class InMemoryHistoryManager implements HistoryManager{
         }
     }
 
-    public void removeNode(Node node) {
-        if (node == null) {
-            return;
-        }
-        if (node == firstTask && node == lastTask) {
+    private void removeNode(Node node) {
+        if (node.nextTask == null && node.previousTask == null) {
             historyList.clear();
             firstTask = null;
             lastTask = null;
             return;
-        } else if (node == firstTask) {
+        } else if (node.previousTask == null) {
             firstTask = node.nextTask;
             firstTask.previousTask = null;
             historyList.remove(node.taskValue.getId());
             return;
-        } else if (node == lastTask) {
+        } else if (node.nextTask == null) {
             lastTask = node.previousTask;
             node.previousTask.nextTask = null;
             return;
@@ -74,7 +67,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         historyList.remove(node.taskValue.getId());
     }
 
-    public List<Task> getTasks() {
+    private List<Task> getTasks() {
        ArrayList<Task> historyTaskList= new ArrayList<>();
        Node node = firstTask;
        while (node.nextTask != null) {
@@ -89,11 +82,9 @@ public class InMemoryHistoryManager implements HistoryManager{
     public void remove(int id) {
         if (historyList.containsKey(id)) {
             Node node = historyList.get(id);
-            if (node == null) {
-                return;
-            }
             removeNode(node);
-            historyList.remove(id);
+        } else {
+            System.out.println("Данная задача не найдена в истории просмотра");
         }
     }
 
@@ -112,24 +103,10 @@ public class InMemoryHistoryManager implements HistoryManager{
         private final Task taskValue;
         private Node nextTask;
 
-
         public Node(Node previousTask, Task taskValue, Node nextTask) {
             this.previousTask = previousTask;
             this.taskValue = taskValue;
             this.nextTask = nextTask;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node node = (Node) o;
-            return Objects.equals(previousTask, node.previousTask) && Objects.equals(taskValue, node.taskValue) && Objects.equals(nextTask, node.nextTask);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(previousTask, taskValue, nextTask);
         }
     }
 }
