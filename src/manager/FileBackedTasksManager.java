@@ -8,40 +8,8 @@ import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
 
-    public static void main(String[] args) {
 
-        FileBackedTasksManager fbtm = Managers.getDefaultFileBacked();
-        File file = new File("taskFile.csv");
-
-        Task task1 = new Task(fbtm.generateId(), "Задача1", "Описание1",
-                Status.NEW);
-        fbtm.createTask(task1);
-        Task task2 = new Task (fbtm.generateId(),"Задача2", "Описание2",
-                Status.IN_PROGRESS);
-        fbtm.createTask(task2);
-        Epic epic1 = new Epic(fbtm.generateId(),"Эпик1", "Описание1");
-        fbtm.createEpic(epic1);
-        Subtask subtask1 = new Subtask(fbtm.generateId(),"Подзадача1 эпик1", "Описание",
-                Status.DONE, epic1.getId());
-        fbtm.createSubtask(subtask1);
-        Subtask subtask2 = new Subtask(fbtm.generateId(),"Подзадача2 эпик1", "Описание",
-                Status.NEW, epic1.getId());
-        fbtm.createSubtask(subtask2);
-        Epic epic2 = new Epic(fbtm.generateId(),"Эпик2", "Описание");
-        fbtm.createEpic(epic2);
-
-        fbtm.findTaskById(2);
-        fbtm.findSubtaskById(5);
-        fbtm.findEpicById(3);
-
-        FileBackedTasksManager fileBackedTasksManager = loadFromFile(file);
-        System.out.println(fileBackedTasksManager.historyManager.getHistory());
-        System.out.println(fileBackedTasksManager.printTaskList());
-        System.out.println(fileBackedTasksManager.printEpicList());
-        System.out.println(fileBackedTasksManager.printSubtaskList());
-    }
-
-    static FileBackedTasksManager loadFromFile(File file) {;
+    public static FileBackedTasksManager loadFromFile(File file) {;
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         fileBackedTasksManager.readFile(file);
         return fileBackedTasksManager;
@@ -49,12 +17,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
 
     private static String toString(HistoryManager manager) {
         StringBuilder sb = new StringBuilder();
-        try {
-            for (Task task : manager.getHistory()) {
-                sb.append(task.getId()).append(",");
-            }
-        } catch (NullPointerException exception) {
-            System.out.println("История просмотра отсутствует в файле");
+        for (Task task : manager.getHistory()) {
+            sb.append(task.getId()).append(",");
         }
         return sb.toString();
     }
@@ -98,15 +62,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             if (historyManager.getHistory().size() != 0) {
                 fileWriter.write(toString(historyManager));
             }
-
         } catch (IOException e) {
-            System.out.println("Ошибка при попытке записи данных файл");
+            e.printStackTrace();
+            throw new ManagerSaveException("Ошибка сохранения данных");
         }
     }
 
     private void readFile(File file) {
-        try {
-            FileReader fileReader = new FileReader(file);
+        try (FileReader fileReader = new FileReader(file)) {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             bufferedReader.readLine();
             while (bufferedReader.ready()) {
@@ -124,23 +87,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                         epicList.put(task.getId(), (Epic) task);
                     }
                 } else {
-                        line = bufferedReader.readLine();
-                        for (Integer id : historyFromString(line)) {
-                            if (taskList.containsKey(id)){
-                                Task task = taskList.get(id);
-                                historyManager.add(task);
-                            } else if (epicList.containsKey(id)){
-                                Epic epic = epicList.get(id);
-                                historyManager.add(epic);
-                            } else {
-                                Subtask subtask = subtaskList.get(id);
-                                historyManager.add(subtask);
-                            }
+                    line = bufferedReader.readLine();
+                    for (Integer id : historyFromString(line)) {
+                        if (taskList.containsKey(id)){
+                            Task task = taskList.get(id);
+                            historyManager.add(task);
+                        } else if (epicList.containsKey(id)){
+                            Epic epic = epicList.get(id);
+                            historyManager.add(epic);
+                        } else {
+                            Subtask subtask = subtaskList.get(id);
+                            historyManager.add(subtask);
                         }
                     }
                 }
-            } catch (IOException ex) {
+            }
+        } catch (IOException ex) {
             ex.printStackTrace();
+            throw new ManagerSaveException("Ошибка чтения данных из файла");
         }
     }
 
