@@ -4,11 +4,17 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task {
+    private static final TaskType TASK_TYPE = TaskType.EPIC;
     private ArrayList<Integer> subtasks;
 
     public Epic(int id, String name, String description) {
         super(id, name, description, Status.NEW);
         this.subtasks = new ArrayList<>();
+    }
+
+    @Override
+    public TaskType getTaskType() {
+        return TASK_TYPE;
     }
 
     public void addSubtask(Integer id) {
@@ -39,11 +45,10 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "Epic{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-//                ", subtasks='" + getSubtasks() + '\'' +
-//                ", status=" + status +
-                '}';
+            return getId() +
+                    "," + getTaskType() +
+                    "," + getName() +
+                    "," + getStatus() +
+                    "," + getDescription();
     }
 }

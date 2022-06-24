@@ -7,7 +7,7 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager{
 
-    private Map<Integer, Node> historyList;
+    private final Map<Integer, Node> historyList;
     private Node firstTask;
     private Node lastTask;
 
@@ -70,11 +70,15 @@ public class InMemoryHistoryManager implements HistoryManager{
     private List<Task> getTasks() {
        ArrayList<Task> historyTaskList= new ArrayList<>();
        Node node = firstTask;
-       while (node.nextTask != null) {
-           historyTaskList.add(node.taskValue);
-           node = node.nextTask;
+       if (firstTask != null) {
+           while (node.nextTask != null) {
+               historyTaskList.add(node.taskValue);
+               node = node.nextTask;
+           }
        }
-       historyTaskList.add(lastTask.taskValue);
+       if (lastTask != null) {
+           historyTaskList.add(lastTask.taskValue);
+       }
        return historyTaskList;
     }
 

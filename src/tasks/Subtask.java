@@ -3,7 +3,8 @@ package tasks;
 import java.util.Objects;
 
 public class Subtask extends Task {
-    private int epicId;
+    private static final TaskType TASK_TYPE = TaskType.SUBTASK;
+    private final int epicId;
 
     public Subtask(int id, String name, String description, Status status, int epicId) {
         super(id, name, description, status);
@@ -14,8 +15,9 @@ public class Subtask extends Task {
         return epicId;
     }
 
-    public void setEpicId(int epicId) {
-        this.epicId = epicId;
+    @Override
+    public TaskType getTaskType() {
+        return TASK_TYPE;
     }
 
     @Override
@@ -34,9 +36,11 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return getId() +
+                "," + getTaskType() +
+                "," + getName() +
+                "," + getStatus() +
+                "," + getDescription() +
+                "," + getEpicId();
     }
 }

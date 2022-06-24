@@ -3,10 +3,13 @@ package tasks;
 import java.util.Objects;
 
 public class Task {
+    private static final TaskType TASK_TYPE = TaskType.TASK;
     protected int id;
     protected final String name;
     protected final String description;
     protected Status status;
+
+
 
     public Task(int id, String name, String description, Status status) {
         this.id = id;
@@ -39,15 +42,19 @@ public class Task {
         this.id = id;
     }
 
+    public TaskType getTaskType() {
+        return TASK_TYPE;
+    }
+
     @Override
     public String toString() {
-        return "tasks.Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-//                ", description='" + description + '\'' +
-//                ", status='" + status + '\'' +
-                '}';
+        return getId() +
+                "," + getTaskType() +
+                "," + getName() +
+                "," + getStatus() +
+                "," + getDescription();
     }
+
 
     @Override
     public boolean equals(Object o) {
