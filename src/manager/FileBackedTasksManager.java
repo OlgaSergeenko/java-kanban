@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.ManagerSaveException;
 import tasks.*;
 
 import java.io.*;
@@ -8,8 +9,7 @@ import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
 
-
-    public static FileBackedTasksManager loadFromFile(File file) {;
+    public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         fileBackedTasksManager.readFile(file);
         return fileBackedTasksManager;
@@ -24,16 +24,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     }
 
     private Task taskFromString(String value) {
-        String[] task = value.split(",");
-        if (TaskType.valueOf(task[1]) == TaskType.SUBTASK) {
-            return new Subtask(Integer.parseInt(task[0]), task[2], task[4], Status.valueOf(task[3]),
-                    Integer.parseInt(task[5]));
-        } else if (TaskType.valueOf(task[1]) == TaskType.TASK) {
-            return new Task(Integer.parseInt(task[0]), task[2], task[4], Status.valueOf(task[3]));
+        String[] taskLine = value.split(",");
+        Task task = null;
+        TaskType type = TaskType.valueOf(taskLine[1]);
+        switch (type) {
+            case TASK:
+                task = new Task(Integer.parseInt(taskLine[0]), taskLine[2], taskLine[4], Status.valueOf(taskLine[3]));
+                break;
+            case SUBTASK:
+                task = new Subtask(Integer.parseInt(taskLine[0]), taskLine[2], taskLine[4], Status.valueOf(taskLine[3]),
+                        Integer.parseInt(taskLine[5]));
+                break;
+            case EPIC:
+                task = new Epic(Integer.parseInt(taskLine[0]), taskLine[2], taskLine[4]);
+                task.setStatus(Status.valueOf(taskLine[3]));
+                break;
         }
-        Epic epic = new Epic(Integer.parseInt(task[0]), task[2], task[4]);
-        epic.setStatus(Status.valueOf(task[3]));
-        return epic;
+        return task;
     }
 
     private static List<Integer> historyFromString(String value) {
@@ -64,7 +71,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new ManagerSaveException("Ошибка сохранения данных");
+            throw new ManagerSaveException("Ошибка сохранения данных" + e.getMessage());
         }
     }
 
@@ -76,15 +83,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 String line = bufferedReader.readLine();
                 String[] lineSeparated = line.split(",");
                 if (!line.isBlank()) {
-                    if (TaskType.valueOf(lineSeparated[1]) == TaskType.TASK) {
-                        Task task = taskFromString(line);
-                        taskList.put(task.getId(), task);
-                    } else if (TaskType.valueOf(lineSeparated[1]) == TaskType.SUBTASK) {
-                        Task task = taskFromString(line);
-                        subtaskList.put(task.getId(), (Subtask) task);
-                    } else if (TaskType.valueOf(lineSeparated[1]) == TaskType.EPIC) {
-                        Task task = taskFromString(line);
-                        epicList.put(task.getId(), (Epic) task);
+                    TaskType type = TaskType.valueOf(lineSeparated[1]);
+                    Task task;
+                    switch (type) {
+                        case TASK :
+                            task = taskFromString(line);
+                            taskList.put(task.getId(), task);
+                            break;
+                        case SUBTASK:
+                            task = taskFromString(line);
+                            subtaskList.put(task.getId(), (Subtask) task);
+                            break;
+                        case EPIC:
+                            task = taskFromString(line);
+                            epicList.put(task.getId(), (Epic) task);
+                            break;
                     }
                 } else {
                     line = bufferedReader.readLine();
@@ -103,8 +116,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 }
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
-            throw new ManagerSaveException("Ошибка чтения данных из файла");
+            throw new ManagerSaveException("Ошибка чтения данных из файла" + ex.getMessage());
         }
     }
 

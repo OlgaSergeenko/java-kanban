@@ -39,10 +39,14 @@ public class Task {
         this.id = id;
     }
 
+    public TaskType getTaskType() {
+        return TaskType.TASK;
+    }
+
     @Override
     public String toString() {
         return getId() +
-                "," + TaskType.TASK +
+                "," + getTaskType() +
                 "," + getName() +
                 "," + getStatus() +
                 "," + getDescription();
