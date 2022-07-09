@@ -4,10 +4,9 @@ import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 import java.util.Map;
+import java.util.Set;
 
 public interface TaskManager {
-    int generateId();
-
     void createTask(Task task);
 
     void createEpic(Epic epic);
@@ -34,11 +33,11 @@ public interface TaskManager {
 
     Epic findEpicById(int epicId);
 
-    void updateTask(Task updatedTask);
+    void updateTask(Task updatedTask, int taskToUpdateId);
 
-    void updateEpic(Epic updatedEpic);
+    void updateEpic(Epic updatedEpic, int epicToUpdateId);
 
-    void updateSubtask(Subtask updatedSubtask);
+    void updateSubtask(Subtask updatedSubtask, int subtaskToUpdateId);
 
     void deleteTaskById(int taskId);
 
@@ -47,4 +46,6 @@ public interface TaskManager {
     void deleteEpicById(int epicId);
 
     HistoryManager getHistoryManager();
+
+    Set<Task> getPrioritizedTasks();
 }

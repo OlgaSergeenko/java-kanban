@@ -88,13 +88,16 @@ public class InMemoryHistoryManager implements HistoryManager{
             Node node = historyList.get(id);
             removeNode(node);
         } else {
-            System.out.println("Данная задача не найдена в истории просмотра");
+            return;
         }
     }
 
     @Override
     public void clear() {
+        getHistory().clear();
         historyList.clear();
+        firstTask = null;
+        lastTask = null;
     }
 
     @Override
