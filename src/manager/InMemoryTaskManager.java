@@ -32,11 +32,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public HistoryManager getHistoryManager() {
-        return historyManager;
-    }
-
-    @Override
     public void createTask(Task task) {
         validateTaskTime(task);
         if (task.getId() == 0) {
@@ -403,6 +398,14 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             throw new TaskManagerException("Эпика с таким номером не существует");
         }
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        if (historyManager.getHistory() == null) {
+            throw new TaskManagerException("История просмотров отсутствует.");
+        }
+        return historyManager.getHistory();
     }
 
     private void addToPrioritizedList(Task task) {

@@ -71,7 +71,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         assertEquals(1, subtaskList.size(), "Из файла восстановлено неверное количество подзадач.");
         assertEquals(subtask2, subtaskList.get(0), "Подзадача из файла восстановлена неверно.");
 
-        List<Task> historyList = newFileBackedTasksManager.getHistoryManager().getHistory();
+        List<Task> historyList = newFileBackedTasksManager.getHistory();
         Task taskInHistory = historyList.get(0);
         assertEquals(1, historyList.size(), "Неверное количество задач в истории.");
         assertEquals(task, taskInHistory, "Задача в истории не совпадает.");
@@ -90,7 +90,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         List<Subtask> subtaskList = newFileBackedTasksManager.getSubtaskList();
         assertEquals(0, subtaskList.size(), "Из файла восстановлено неверное количество подзадач.");
 
-        List<Task> historyList = newFileBackedTasksManager.getHistoryManager().getHistory();
+        List<Task> historyList = newFileBackedTasksManager.getHistory();
         assertEquals(0, historyList.size(), "Неверное количество задач в истории.");
     }
 
@@ -99,7 +99,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         fileBackedTasksManager.createTask(task);
 
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        List<Task> historyList = newFileBackedTasksManager.getHistoryManager().getHistory();
+        List<Task> historyList = newFileBackedTasksManager.getHistory();
         assertEquals(0, historyList.size(), "Неверное количество задач в истории.");
     }
 

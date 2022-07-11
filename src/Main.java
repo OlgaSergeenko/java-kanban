@@ -40,7 +40,7 @@ public class Main {
 
         FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
         System.out.println("-----HISTORY------");
-        System.out.println(fileBackedTasksManager.getHistoryManager().getHistory());
+        System.out.println(fileBackedTasksManager.getHistory());
         System.out.println("-----LISTS------");
         System.out.println(fileBackedTasksManager.getTaskList());
         System.out.println(fileBackedTasksManager.getEpicList());
