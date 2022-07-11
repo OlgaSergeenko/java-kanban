@@ -2,7 +2,6 @@ package tests;
 
 import manager.FileBackedTasksManager;
 import manager.TaskManager;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasks.Epic;
@@ -13,7 +12,6 @@ import tasks.Task;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,21 +58,21 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         fileBackedTasksManager.findTaskById(1);
 
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        Map<Integer, Task> taskList = newFileBackedTasksManager.printTaskList();
+        List<Task> taskList = newFileBackedTasksManager.getTaskList();
         assertEquals(1, taskList.size(), "Из файла восстановлено неверное количество задач.");
-        assertEquals(task, taskList.get(task.getId()), "Задача из файла восстановлена неверно.");
+        assertEquals(task, taskList.get(0), "Задача из файла восстановлена неверно.");
 
-        Map<Integer, Epic> epicList = newFileBackedTasksManager.printEpicList();
-        Epic loadedEpic = epicList.get(3);
+        List<Epic> epicList = newFileBackedTasksManager.getEpicList();
+        Epic loadedEpic = epicList.get(0);
         assertEquals(1, epicList.size(), "Из файла восстановлено неверное количество эпиков'.");
         assertEquals(epic, loadedEpic, "Эпик из файла восстановлен неверно.");
 
-        Map<Integer, Subtask> subtaskList = newFileBackedTasksManager.printSubtaskList();
+        List<Subtask> subtaskList = newFileBackedTasksManager.getSubtaskList();
         assertEquals(1, subtaskList.size(), "Из файла восстановлено неверное количество подзадач.");
-        assertEquals(subtask2, subtaskList.get(subtask2.getId()), "Подзадача из файла восстановлена неверно.");
+        assertEquals(subtask2, subtaskList.get(0), "Подзадача из файла восстановлена неверно.");
 
         List<Task> historyList = newFileBackedTasksManager.getHistoryManager().getHistory();
-        Task taskInHistory = taskList.get(task.getId());
+        Task taskInHistory = historyList.get(0);
         assertEquals(1, historyList.size(), "Неверное количество задач в истории.");
         assertEquals(task, taskInHistory, "Задача в истории не совпадает.");
     }
@@ -83,13 +81,13 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     public void shouldSaveAndReadFromFileWhenNoTasks() {
         fileBackedTasksManager.deleteAllTaskTypes();
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        Map<Integer, Task> taskList = newFileBackedTasksManager.printTaskList();
+        List<Task> taskList = newFileBackedTasksManager.getTaskList();
         assertEquals(0, taskList.size(), "Из файла восстановлено неверное количество задач.");
 
-        Map<Integer, Epic> epicList = newFileBackedTasksManager.printEpicList();
+        List<Epic> epicList = newFileBackedTasksManager.getEpicList();
         assertEquals(0, epicList.size(), "Из файла восстановлено неверное количество эпиков'.");
 
-        Map<Integer, Subtask> subtaskList = newFileBackedTasksManager.printSubtaskList();
+        List<Subtask> subtaskList = newFileBackedTasksManager.getSubtaskList();
         assertEquals(0, subtaskList.size(), "Из файла восстановлено неверное количество подзадач.");
 
         List<Task> historyList = newFileBackedTasksManager.getHistoryManager().getHistory();
@@ -110,8 +108,8 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         fileBackedTasksManager.createEpic(epic);
 
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        Map<Integer, Epic> epicList = newFileBackedTasksManager.printEpicList();
-        Epic loadedEpic = epicList.get(1);
+        List<Epic> epicList = newFileBackedTasksManager.getEpicList();
+        Epic loadedEpic = epicList.get(0);
         List<Integer> subtasks = loadedEpic.getSubtasks();
         assertEquals(1, epicList.size(), "Из файла восстановлено неверное количество эпиков'.");
         assertEquals(epic, loadedEpic, "Эпик из файла восстановлен неверно.");

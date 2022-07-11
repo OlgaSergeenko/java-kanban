@@ -1,2 +1,7 @@
 id,type,name,status,description,epic,startTime,duration
+1,TASK,Задача1,NEW,Описание1,2022-07-09T22:15,60,2022-07-09T23:15
+3,EPIC,Эпик1,IN_PROGRESS,Описание1,2022-07-19T22:15,25,2022-07-19T22:40
+6,EPIC,Эпик2,NEW,Описание,null,0,null
+4,SUBTASK,Подзадача1 эпик1,DONE,Описание,null,0,null,3
+5,SUBTASK,Подзадача2 эпик1,NEW,Описание,2022-07-19T22:15,25,2022-07-19T22:40,3
 

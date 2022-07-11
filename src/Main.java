@@ -32,18 +32,20 @@ public class Main {
         fbtm.createSubtask(subtask1);
         fbtm.createSubtask(subtask2);
         fbtm.createEpic(epic2);
-
-        System.out.println("Приоритеты");
-        System.out.println(fbtm.getPrioritizedTasks());
+        fbtm.deleteTaskById(2);
 
         fbtm.findTaskById(1);
         fbtm.findSubtaskById(4);
         fbtm.findEpicById(3);
 
         FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
+        System.out.println("-----HISTORY------");
         System.out.println(fileBackedTasksManager.getHistoryManager().getHistory());
-        System.out.println(fileBackedTasksManager.printTaskList());
-        System.out.println(fileBackedTasksManager.printEpicList());
-        System.out.println(fileBackedTasksManager.printSubtaskList());
+        System.out.println("-----LISTS------");
+        System.out.println(fileBackedTasksManager.getTaskList());
+        System.out.println(fileBackedTasksManager.getEpicList());
+        System.out.println(fileBackedTasksManager.getSubtaskList());
+        System.out.println("-----PRIORITIES------");
+        System.out.println(fileBackedTasksManager.getPrioritizedTasks());
     }
 }
