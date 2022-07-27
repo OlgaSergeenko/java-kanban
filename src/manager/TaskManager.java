@@ -14,11 +14,11 @@ public interface TaskManager {
 
     void createSubtask(Subtask subtask);
 
-    List<Task> getTaskList();
+    List<Task> getTasks();
 
-    List<Subtask> getSubtaskList();
+    List<Subtask> getSubtasks();
 
-    List<Epic> getEpicList();
+    List<Epic> getEpics();
 
     void deleteAllTasks();
 

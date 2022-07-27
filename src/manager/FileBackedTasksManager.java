@@ -5,17 +5,23 @@ import tasks.*;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
+    File file;
+
+    public FileBackedTasksManager(File file) {
+        this.file = file;
+    }
+
+    public FileBackedTasksManager() {
+    }
 
     public static FileBackedTasksManager loadFromFile(File file) {
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         fileBackedTasksManager.readFile(file);
         return fileBackedTasksManager;
     }
@@ -28,7 +34,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return sb.toString();
     }
 
-    private Task taskFromString(String value) {
+    public Task taskFromString(String value) {
         String[] taskLine = value.split(",");
         Task task = null;
         int id;
@@ -78,7 +84,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return task;
     }
 
-    private static List<Integer> historyFromString(String value) {
+    public List<Integer> historyFromString(String value) {
         List<Integer> historyList = new ArrayList<>();
         String[] list = value.split(",");
         for (String s : list) {
@@ -90,13 +96,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     public void save() {
         try (FileWriter fileWriter = new FileWriter("taskFile.csv")) {
             fileWriter.write("id,type,name,status,description,epic,startTime,duration" + "\n");
-            for (Task value : taskList.values()) {
+            for (Task value : tasks.values()) {
                 fileWriter.write(value.toString() + "\n");
             }
-            for (Epic value : epicList.values()) {
+            for (Epic value : epics.values()) {
                 fileWriter.write(value.toString() + "\n");
             }
-            for (Subtask value : subtaskList.values()) {
+            for (Subtask value : subtasks.values()) {
                 fileWriter.write(value.toString() + "\n");
             }
             fileWriter.write("\n");
@@ -149,14 +155,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                         return;
                     } else {
                         for (Integer id : historyFromString(line)) {
-                            if (taskList.containsKey(id)) {
-                                Task task = taskList.get(id);
+                            if (tasks.containsKey(id)) {
+                                Task task = tasks.get(id);
                                 historyManager.add(task);
-                            } else if (epicList.containsKey(id)) {
-                                Epic epic = epicList.get(id);
+                            } else if (epics.containsKey(id)) {
+                                Epic epic = epics.get(id);
                                 historyManager.add(epic);
                             } else {
-                                Subtask subtask = subtaskList.get(id);
+                                Subtask subtask = subtasks.get(id);
                                 historyManager.add(subtask);
                             }
                         }

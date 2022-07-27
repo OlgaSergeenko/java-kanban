@@ -49,7 +49,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldCreateNewTask() {
         taskManager.createTask(task);
-        final Task savedTask = taskManager.getTaskList().get(0);
+        final Task savedTask = taskManager.getTasks().get(0);
         Optional<Task> savedInPriorities = taskManager.getPrioritizedTasks().stream().findFirst();
         assertNotNull(savedTask, "Задача не найдена.");
         assertEquals(task, savedTask, "Задачи не совпадают.");
@@ -60,7 +60,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void shouldPrintTaskList() {
         taskManager.createTask(task);
         int taskId = task.getId();
-        final List<Task> taskList = taskManager.getTaskList();
+        final List<Task> taskList = taskManager.getTasks();
         assertNotNull(taskList, "Задачи на возвращаются.");
         assertEquals(1, taskList.size(), "Неверное количество задач.");
         assertEquals(task, taskList.get(0), "Задачи не совпадают.");
@@ -69,7 +69,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnEmptyTaskList_WhenNoTasks() {
-        final List<Task> taskList = taskManager.getTaskList();
+        final List<Task> taskList = taskManager.getTasks();
         assertTrue(taskList.isEmpty(), "Список задач не пустой.");
     }
 
@@ -83,7 +83,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldCreateNewEpic() {
         taskManager.createEpic(epic);
-        final Epic savedEpic = taskManager.getEpicList().get(0);
+        final Epic savedEpic = taskManager.getEpics().get(0);
         assertNotNull(savedEpic, "Эпик не найден.");
         assertEquals(epic, savedEpic, "Эпики не совпадают.");
     }
@@ -98,7 +98,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldPrintEpicList() {
         taskManager.createEpic(epic);
-        final List<Epic> taskList = taskManager.getEpicList();
+        final List<Epic> taskList = taskManager.getEpics();
         assertNotNull(taskList, "Задачи на возвращаются.");
         assertEquals(1, taskList.size(), "Неверное количество задач.");
         assertEquals(epic, taskList.get(0), "Задачи не совпадают.");
@@ -106,7 +106,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnEmptyEpicList_WhenNoEpics() {
-        final List<Epic> taskList = taskManager.getEpicList();
+        final List<Epic> taskList = taskManager.getEpics();
         assertTrue(taskList.isEmpty(), "Список эпиков не пустой.");
     }
 
@@ -117,7 +117,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 LocalDateTime.of(2022, 7, 20, 10, 20), 30, 1);
         taskManager.createSubtask(subtask);
         int id = subtask.getId();
-        final Subtask savedSubtask = taskManager.getSubtaskList().get(0);
+        final Subtask savedSubtask = taskManager.getSubtasks().get(0);
         assertNotNull(savedSubtask, "Подзадача не найдена.");
         assertEquals(subtask, savedSubtask, "Подзадачи не совпадают.");
 
@@ -136,7 +136,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Subtask subtask = new Subtask("Subtask1", "Descr1", Status.NEW,
                 LocalDateTime.of(2022, 7, 20, 10, 20), 30, 1);
         taskManager.createSubtask(subtask);
-        final List<Subtask> subtaskList = taskManager.getSubtaskList();
+        final List<Subtask> subtaskList = taskManager.getSubtasks();
         assertNotNull(subtaskList, "Подзадачи не возвращаются.");
         assertEquals(1, subtaskList.size(), "Неверное количество подзадач.");
         assertEquals(subtask, subtaskList.get(0), "Подзадачи не совпадают.");
@@ -144,7 +144,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnEmptySubtaskList_WhenNoSubtasks() {
-        final List<Subtask> subtaskList = taskManager.getSubtaskList();
+        final List<Subtask> subtaskList = taskManager.getSubtasks();
         assertTrue(subtaskList.isEmpty(), "Список подазадач не пустой.");
     }
 
@@ -198,7 +198,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createTask(task);
         taskManager.findTaskById(task.getId());
         taskManager.deleteAllTasks();
-        final List<Task> taskList = taskManager.getTaskList();
+        final List<Task> taskList = taskManager.getTasks();
         assertTrue(taskList.isEmpty(), "Список задач не пустой.");
 
         List<Task> historyTaskList = taskManager.getHistory();
@@ -213,7 +213,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createEpic(epic);
         taskManager.findEpicById(epic.getId());
         taskManager.deleteAllEpics();
-        final List<Epic> epicList = taskManager.getEpicList();
+        final List<Epic> epicList = taskManager.getEpics();
         assertTrue(epicList.isEmpty(), "Список эпиков не пустой.");
 
         List<Task> historyTaskList = taskManager.getHistory();
@@ -235,9 +235,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.deleteAllSubtasks();
 
-        final List<Epic> epicList = taskManager.getEpicList();
+        final List<Epic> epicList = taskManager.getEpics();
         assertEquals(2, epicList.size(), "При удалении всех подзадач удаляются эпики.");
-        final List<Subtask> subtaskList = taskManager.getSubtaskList();
+        final List<Subtask> subtaskList = taskManager.getSubtasks();
         assertTrue(subtaskList.isEmpty(), "Список подзадач не пустой.");
         final List<Integer> subtasksEpic1 = epic.getSubtasks();
         assertTrue(subtasksEpic1.isEmpty(), "Список подзадач у эпик1 не пустой.");
@@ -260,11 +260,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.deleteAllTaskTypes();
 
-        final List<Task> taskList = taskManager.getTaskList();
+        final List<Task> taskList = taskManager.getTasks();
         assertTrue(taskList.isEmpty(), "Список задач не пустой.");
-        final List<Epic> epicList = taskManager.getEpicList();
+        final List<Epic> epicList = taskManager.getEpics();
         assertTrue(epicList.isEmpty(), "Список эпиков не пустой.");
-        final List<Subtask> subtaskList = taskManager.getSubtaskList();
+        final List<Subtask> subtaskList = taskManager.getSubtasks();
         assertTrue(subtaskList.isEmpty(), "Список подзадач не пустой.");
         final List<Integer> subtasksEpic1 = epic.getSubtasks();
         assertTrue(subtasksEpic1.isEmpty(), "Список подзадач у эпик не пустой.");
@@ -529,7 +529,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createTask(task);
         taskManager.findTaskById(task.getId());
         taskManager.deleteTaskById(task.getId());
-        List<Task> taskList = taskManager.getTaskList();
+        List<Task> taskList = taskManager.getTasks();
         List<Task> historyList = taskManager.getHistory();
         assertTrue(taskList.isEmpty(), "Задача по id не удалена.");
         assertTrue(historyList.isEmpty(), "Задача не удалена из истории при удалении по id.");
@@ -568,7 +568,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.deleteSubtaskById(subtaskToDeleteId);
         Status newStatus = epic.getStatus();
 
-        List<Subtask> subtaskList = taskManager.getSubtaskList();
+        List<Subtask> subtaskList = taskManager.getSubtasks();
         List<Task> historyList = taskManager.getHistory();
         assertTrue(subtaskList.isEmpty(), "Подзадача по id не удалена.");
         assertTrue(historyList.isEmpty(), "Подзадача не удалена из истории при удалении по id.");
@@ -604,7 +604,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createEpic(epic);
         taskManager.findEpicById(epic.getId());
         taskManager.deleteEpicById(epic.getId());
-        List<Epic> epicList = taskManager.getEpicList();
+        List<Epic> epicList = taskManager.getEpics();
         List<Task> historyList = taskManager.getHistory();
         assertTrue(epicList.isEmpty(), "Эпик по id не удален.");
         assertTrue(historyList.isEmpty(), "Эпик не удален из истории при удалении по id.");
@@ -689,6 +689,3 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 "Продолжительность эпика рассчитана неверно.");
     }
 }
-
-
-

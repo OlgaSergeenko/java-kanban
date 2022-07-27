@@ -38,7 +38,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         subtask = new Subtask("Subtask", "Descr", Status.DONE,
                 LocalDateTime.of(2022,8,20,15,30), 120, 3);
         subtask2 = new Subtask("Subtask2", "Descr2", Status.NEW,
-                LocalDateTime.of(2022,8,20,15,30), 120, 3);
+                LocalDateTime.of(2022,9,20,15,30), 120, 3);
     }
 
     @Override
@@ -58,16 +58,16 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         fileBackedTasksManager.findTaskById(1);
 
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        List<Task> taskList = newFileBackedTasksManager.getTaskList();
+        List<Task> taskList = newFileBackedTasksManager.getTasks();
         assertEquals(1, taskList.size(), "Из файла восстановлено неверное количество задач.");
         assertEquals(task, taskList.get(0), "Задача из файла восстановлена неверно.");
 
-        List<Epic> epicList = newFileBackedTasksManager.getEpicList();
+        List<Epic> epicList = newFileBackedTasksManager.getEpics();
         Epic loadedEpic = epicList.get(0);
         assertEquals(1, epicList.size(), "Из файла восстановлено неверное количество эпиков'.");
         assertEquals(epic, loadedEpic, "Эпик из файла восстановлен неверно.");
 
-        List<Subtask> subtaskList = newFileBackedTasksManager.getSubtaskList();
+        List<Subtask> subtaskList = newFileBackedTasksManager.getSubtasks();
         assertEquals(1, subtaskList.size(), "Из файла восстановлено неверное количество подзадач.");
         assertEquals(subtask2, subtaskList.get(0), "Подзадача из файла восстановлена неверно.");
 
@@ -81,13 +81,13 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     public void shouldSaveAndReadFromFileWhenNoTasks() {
         fileBackedTasksManager.deleteAllTaskTypes();
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        List<Task> taskList = newFileBackedTasksManager.getTaskList();
+        List<Task> taskList = newFileBackedTasksManager.getTasks();
         assertEquals(0, taskList.size(), "Из файла восстановлено неверное количество задач.");
 
-        List<Epic> epicList = newFileBackedTasksManager.getEpicList();
+        List<Epic> epicList = newFileBackedTasksManager.getEpics();
         assertEquals(0, epicList.size(), "Из файла восстановлено неверное количество эпиков'.");
 
-        List<Subtask> subtaskList = newFileBackedTasksManager.getSubtaskList();
+        List<Subtask> subtaskList = newFileBackedTasksManager.getSubtasks();
         assertEquals(0, subtaskList.size(), "Из файла восстановлено неверное количество подзадач.");
 
         List<Task> historyList = newFileBackedTasksManager.getHistory();
@@ -108,7 +108,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         fileBackedTasksManager.createEpic(epic);
 
         newFileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
-        List<Epic> epicList = newFileBackedTasksManager.getEpicList();
+        List<Epic> epicList = newFileBackedTasksManager.getEpics();
         Epic loadedEpic = epicList.get(0);
         List<Integer> subtasks = loadedEpic.getSubtasks();
         assertEquals(1, epicList.size(), "Из файла восстановлено неверное количество эпиков'.");
