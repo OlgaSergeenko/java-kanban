@@ -1,4 +1,4 @@
-package HttpManager;
+package controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,9 +23,12 @@ import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
-    TaskManager taskManager;
-    HttpServer httpServer;
-    Gson gson;
+    final static String HTTP_GET = "GET";
+    final static String HTTP_POST = "POST";
+    final static String HTTP_DELETE = "DELETE";
+    private final TaskManager taskManager;
+    private final HttpServer httpServer;
+    private final Gson gson;
 
     public HttpTaskServer() throws IOException {
         this.taskManager = Managers.getDefault(new URL("http://localhost:8078"));
@@ -59,62 +62,98 @@ public class HttpTaskServer {
           String[] pathParts = exchange.getRequestURI().getPath().split("/");
 
           switch (method) {
-              case "GET":
-                  if (pathParts[pathParts.length - 1].equals("task")) {
-                      httpGetTasks(exchange, outputStream);
-                  } if (exchange.getRequestURI().getPath().contains("/task/id=")) {
-                      httpGetTaskById(exchange, outputStream);
-                  } if (pathParts[pathParts.length - 1].equals("subtask")) {
-                      httpGetSubtasks(exchange, outputStream);
-                  } if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
-                      httpGetSubtaskById(exchange, outputStream);
-                  } if (pathParts[pathParts.length - 1].equals("epic")) {
-                      httpGetEpics(exchange, outputStream);
-                  } if (exchange.getRequestURI().getPath().contains("epic/id=")) {
-                      httpGetEpicById(exchange, outputStream);
-                  } if (pathParts[pathParts.length - 1].equals("history")) {
-                      httpGetHistory(exchange, outputStream);
-                  } if (pathParts[pathParts.length - 1].equals("priorities")) {
-                      httpGetPriorities(exchange, outputStream);
-                  }
+              case HTTP_GET:
+                  handleGetRequest(pathParts, exchange, outputStream);
                   break;
-              case "POST":
-                  if (pathParts[pathParts.length - 1].equals("task")) {
-                      httpPostNewTask(exchange, inputStream);
-                  } if (exchange.getRequestURI().getPath().contains("/task/id=")) {
-                      httpUpdateTask(exchange, inputStream);
-                  } if (pathParts[pathParts.length - 1].equals("subtask")) {
-                      httpPostNewSubtask(exchange, inputStream);
-                  } if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
-                      httpUpdateSubtask(exchange, inputStream);
-                  } if (pathParts[pathParts.length - 1].equals("epic")) {
-                      httpPostNewEpic(exchange, inputStream);
-                  } if (exchange.getRequestURI().getPath().contains("epic/id=")) {
-                      httpUpdateEpic(exchange, inputStream);
-                  }
+              case HTTP_POST:
+                  handlePostRequest(pathParts, exchange, inputStream);
                   break;
-              case "DELETE":
-                  if (pathParts[pathParts.length - 1].equals("task")) {
-                      httpDeleteTasks(exchange);
-                  } if (exchange.getRequestURI().getPath().contains("/task/id=")) {
-                      httpDeleteTaskById(exchange);
-                  } if (pathParts[pathParts.length - 1].equals("subtask")) {
-                      httpDeleteSubtasks(exchange);
-                  } if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
-                      httpDeleteSubtaskById(exchange);
-                  } if (pathParts[pathParts.length - 1].equals("epic")) {
-                      httpDeleteEpics(exchange);
-                  } if (exchange.getRequestURI().getPath().contains("epic/id=")) {
-                      httpDeleteEpicById(exchange);
-                  } if (pathParts[pathParts.length - 1].equals("all")) {
-                      httpDeleteAllTaskTypes(exchange);
-                  }
+              case HTTP_DELETE:
+                  handleDeleteRequest(pathParts, exchange);
                   break;
               default:
                   System.out.println("Запрос не обработан");
           }
           outputStream.close();
           inputStream.close();
+      }
+
+      private void handleGetRequest
+              (String[] pathParts,
+               HttpExchange exchange,
+               OutputStream outputStream) throws IOException {
+          if (pathParts[pathParts.length - 1].equals("task")) {
+              httpGetTasks(exchange, outputStream);
+          } else if (exchange.getRequestURI().getPath().contains("/task/id=")) {
+              httpGetTaskById(exchange, outputStream);
+          } else if (pathParts[pathParts.length - 1].equals("subtask")) {
+              httpGetSubtasks(exchange, outputStream);
+          } else if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
+              httpGetSubtaskById(exchange, outputStream);
+          } else if (pathParts[pathParts.length - 1].equals("epic")) {
+              httpGetEpics(exchange, outputStream);
+          } else if (exchange.getRequestURI().getPath().contains("epic/id=")) {
+              httpGetEpicById(exchange, outputStream);
+          } else if (pathParts[pathParts.length - 1].equals("history")) {
+              httpGetHistory(exchange, outputStream);
+          } else if (pathParts[pathParts.length - 1].equals("priorities")) {
+              httpGetPriorities(exchange, outputStream);
+          } else {
+              String response = "Неизвестный запрос. Проверьте URL.";
+              exchange.sendResponseHeaders(404, 0);
+              try (OutputStream os = exchange.getResponseBody()) {
+                  os.write(response.getBytes());
+              }
+          }
+      }
+
+      private void handlePostRequest
+              (String[] pathParts,
+               HttpExchange exchange,
+               InputStream inputStream) throws IOException {
+          if (pathParts[pathParts.length - 1].equals("task")) {
+              httpPostNewTask(exchange, inputStream);
+          } else if (exchange.getRequestURI().getPath().contains("/task/id=")) {
+              httpUpdateTask(exchange, inputStream);
+          } else if (pathParts[pathParts.length - 1].equals("subtask")) {
+              httpPostNewSubtask(exchange, inputStream);
+          } else if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
+              httpUpdateSubtask(exchange, inputStream);
+          } else if (pathParts[pathParts.length - 1].equals("epic")) {
+              httpPostNewEpic(exchange, inputStream);
+          } else if (exchange.getRequestURI().getPath().contains("epic/id=")) {
+              httpUpdateEpic(exchange, inputStream);
+          } else {
+              String response = "Неизвестный запрос. Проверьте URL.";
+              exchange.sendResponseHeaders(404, 0);
+              try (OutputStream os = exchange.getResponseBody()) {
+                  os.write(response.getBytes());
+              }
+          }
+      }
+
+      private void handleDeleteRequest(String[] pathParts, HttpExchange exchange) throws IOException {
+          if (pathParts[pathParts.length - 1].equals("task")) {
+              httpDeleteTasks(exchange);
+          } else if (exchange.getRequestURI().getPath().contains("/task/id=")) {
+              httpDeleteTaskById(exchange);
+          } else if (pathParts[pathParts.length - 1].equals("subtask")) {
+              httpDeleteSubtasks(exchange);
+          } else if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
+              httpDeleteSubtaskById(exchange);
+          } else if (pathParts[pathParts.length - 1].equals("epic")) {
+              httpDeleteEpics(exchange);
+          } else if (exchange.getRequestURI().getPath().contains("epic/id=")) {
+              httpDeleteEpicById(exchange);
+          } else if (pathParts[pathParts.length - 1].equals("all")) {
+              httpDeleteAllTaskTypes(exchange);
+          }  else {
+              String response = "Неизвестный запрос. Проверьте URL.";
+              exchange.sendResponseHeaders(404, 0);
+              try (OutputStream os = exchange.getResponseBody()) {
+                  os.write(response.getBytes());
+              }
+          }
       }
 
       private void httpGetPriorities(HttpExchange exchange, OutputStream outputStream) throws IOException {

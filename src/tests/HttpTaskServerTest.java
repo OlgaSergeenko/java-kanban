@@ -1,7 +1,7 @@
 package tests;
 
-import HttpManager.HttpTaskServer;
-import HttpManager.KVServer;
+import controllers.HttpTaskServer;
+import controllers.KVServer;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

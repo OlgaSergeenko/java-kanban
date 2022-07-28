@@ -1,8 +1,8 @@
 package tests;
 
-import HttpManager.HTTPTaskManager;
-import HttpManager.HttpTaskServer;
-import HttpManager.KVServer;
+import manager.http.HTTPTaskManager;
+import controllers.HttpTaskServer;
+import controllers.KVServer;
 import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Status;

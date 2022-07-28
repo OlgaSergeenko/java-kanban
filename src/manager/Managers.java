@@ -1,8 +1,7 @@
 package manager;
 
-import HttpManager.HTTPTaskManager;
+import manager.http.HTTPTaskManager;
 
-import java.io.IOException;
 import java.net.URL;
 
 public class Managers {

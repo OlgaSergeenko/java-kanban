@@ -4,6 +4,7 @@ import manager.HistoryManager;
 import manager.InMemoryHistoryManager;
 import manager.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import tasks.Status;
@@ -27,7 +28,8 @@ class HistoryManagerTest {
     }
 
     @Test
-    void shouldAddTaskToHistoryListAndReturnHistoryList() {
+    @DisplayName("Add and Get test for HistoryManager")
+    void shouldAddAndReturnHistoryList() {
         Task task = new Task("Task1", "Descr1",Status.NEW,
                 LocalDateTime.of(2022,12,10,10,0), 30);
         inMemoryTaskManager.createTask(task);
@@ -61,7 +63,8 @@ class HistoryManagerTest {
     }
 
     @Test
-    void shouldRemoveTaskFromHistoryListFromStartMiddleEnd() {
+    @DisplayName("Test to remove task from different places in HistoryList")
+    void shouldRemoveTaskFromHistory() {
         Task task = new Task("Task1", "Descr1",Status.NEW,
                 LocalDateTime.of(2022,8,5,10,0), 60);
         Task task2 = new Task("Task1", "Descr1",Status.NEW,
@@ -105,6 +108,7 @@ class HistoryManagerTest {
     }
 
     @Test
+    @DisplayName("Test for empty HistoryList")
     void shouldReturnNullWhenHistoryListIsEmpty() {
         int historyListSize = historyManager.getHistory().size();
         assertEquals(0, historyListSize, "История задач не пустая.");

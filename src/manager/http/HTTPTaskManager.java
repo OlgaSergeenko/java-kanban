@@ -1,6 +1,6 @@
-package HttpManager;
+package manager.http;
 
-import com.google.gson.Gson;
+import controllers.KVTaskClient;
 import manager.FileBackedTasksManager;
 import manager.TaskManager;
 import tasks.Epic;
@@ -12,14 +12,12 @@ import java.io.IOException;
 import java.net.URL;
 
 public class HTTPTaskManager extends FileBackedTasksManager implements TaskManager {
-    URL url;
-    KVTaskClient kvTaskClient;
-    Gson gson;
+    private final URL url;
+    private final KVTaskClient kvTaskClient;
 
     public HTTPTaskManager(URL url){
         this.url = url;
         kvTaskClient = new KVTaskClient(this.url);
-        gson = new Gson();
     }
 
     public static HTTPTaskManager loadFromServer(URL url) {
@@ -52,8 +50,8 @@ public class HTTPTaskManager extends FileBackedTasksManager implements TaskManag
             kvTaskClient.put(String.valueOf(TaskKey.SUBTASK_KEY), subtasksStringBuilder.toString());
             kvTaskClient.put(String.valueOf(TaskKey.EPIC_KEY), epicsStringBuilder.toString());
             kvTaskClient.put(String.valueOf(TaskKey.HISTORY_KEY), historyStringBuilder.toString());
-        } catch (IOException | InterruptedException exception) {
-            exception.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Ошибка в методе save() " + e.getMessage());
         }
     }
 

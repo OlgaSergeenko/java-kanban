@@ -1,4 +1,4 @@
-package HttpManager;
+package controllers;
 
 import java.io.IOException;
 import java.net.URI;
@@ -8,9 +8,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    URL url;
-    HttpClient client;
-    String apiToken;
+    private final URL url;
+    private final HttpClient client;
+    private final String apiToken;
 
     public KVTaskClient(URL url) {
         this.url = url;
@@ -25,9 +25,11 @@ public class KVTaskClient {
         try {
             httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
-            System.out.println("Ошибка при регистрации - метод register()");
+            System.out.println("Ошибка при регистрации - метод register()" + e.getMessage());
         }
-        assert httpResponse != null;
+        if (httpResponse.body() == null) {
+            throw new RuntimeException("Отсутствует тело ответа в методе register()");
+        }
         return httpResponse.body();
     }
 
@@ -37,8 +39,8 @@ public class KVTaskClient {
         HttpRequest request = HttpRequest.newBuilder().uri(uri).POST(body).build();
         try {
             client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException exception) {
-            System.out.println("Ошибка в методе put()");
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Ошибка в методе put()" + e.getMessage());
         }
     }
 
@@ -49,8 +51,11 @@ public class KVTaskClient {
         HttpResponse<String> response = null;
         try {
             response = client.send(request, handler);
-        } catch (IOException | InterruptedException exception) {
-            System.out.println("Ошибка в методе load()");
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Ошибка в методе load()" + e.getMessage());
+        }
+        if (response.body() == null) {
+            throw new RuntimeException("Отсутствует тело ответа в методе load()");
         }
         return response.body();
     }

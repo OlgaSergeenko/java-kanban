@@ -1,4 +1,4 @@
-package HttpManager;
+package controllers;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
