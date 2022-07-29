@@ -17,19 +17,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
 
-    TaskManager fileBackedTasksManager;
-    TaskManager newFileBackedTasksManager;
-    File file = new File("taskFile.csv");
-    Task task;
-    Task task2;
-    Epic epic;
-    Subtask subtask;
-    Subtask subtask2;
+    private final File file = new File("taskFile.csv");
+    private TaskManager fileBackedTasksManager;
+    private TaskManager newFileBackedTasksManager;
+    private Task task;
+    private Task task2;
+    private Epic epic;
+    private Subtask subtask;
+    private Subtask subtask2;
 
     @BeforeEach
     public void beforeEach() {
         fileBackedTasksManager = createTaskManager();
-        file = new File("taskFile.csv");
         task = new Task("Task1", "Descr1",Status.NEW,
                 LocalDateTime.of(2022,12,10,10,0), 30);
         task2 = new Task("Task2", "Descr2",Status.IN_PROGRESS,

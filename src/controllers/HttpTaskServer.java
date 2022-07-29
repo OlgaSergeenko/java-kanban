@@ -23,9 +23,15 @@ import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
-    final static String HTTP_GET = "GET";
-    final static String HTTP_POST = "POST";
-    final static String HTTP_DELETE = "DELETE";
+    private final static String HTTP_GET = "GET";
+    private final static String HTTP_POST = "POST";
+    private final static String HTTP_DELETE = "DELETE";
+    private final static String HTTP_TYPE_TASK = "task";
+    private final static String HTTP_TYPE_SUBTASK = "subtask";
+    private final static String HTTP_TYPE_EPIC = "epic";
+    private final static String HTTP_TYPE_HISTORY = "history";
+    private final static String HTTP_TYPE_PRIORITIES = "priorities";
+    private final static String HTTP_TYPE_ALL_TASKS = "all";
     private final TaskManager taskManager;
     private final HttpServer httpServer;
     private final Gson gson;
@@ -41,6 +47,7 @@ public class HttpTaskServer {
         httpServer.createContext("/tasks/epic", new TasksHandler());
         httpServer.createContext("/tasks/history", new TasksHandler());
         httpServer.createContext("/tasks/priorities", new TasksHandler());
+        httpServer.createContext("/tasks/all", new TasksHandler());
     }
 
     public void start() {
@@ -59,17 +66,32 @@ public class HttpTaskServer {
           OutputStream outputStream = exchange.getResponseBody();
           InputStream inputStream = exchange.getRequestBody();
           String method = exchange.getRequestMethod();
-          String[] pathParts = exchange.getRequestURI().getPath().split("/");
-
+          String requestTaskType = getRequestTaskType(exchange);
+          String rawQuery = exchange.getRequestURI().getRawQuery();
           switch (method) {
               case HTTP_GET:
-                  handleGetRequest(pathParts, exchange, outputStream);
+                  if (rawQuery == null) {
+                      handleGetAllTasksRequest(requestTaskType, exchange, outputStream);
+                  } else {
+                      int requestTaskId = getRequestTaskId(rawQuery);
+                      handleGetByIdRequest(requestTaskId, requestTaskType, exchange, outputStream);
+                  }
                   break;
               case HTTP_POST:
-                  handlePostRequest(pathParts, exchange, inputStream);
+                  if (rawQuery == null) {
+                      handlePostNewTaskRequest(requestTaskType, exchange, inputStream);
+                  } else {
+                      int requestTaskId = getRequestTaskId(rawQuery);
+                      handlePostUpdatedTaskRequest(requestTaskId, requestTaskType, exchange, inputStream);
+                  }
                   break;
               case HTTP_DELETE:
-                  handleDeleteRequest(pathParts, exchange);
+                  if (rawQuery == null) {
+                      handleDeleteAllTasksRequest(requestTaskType, exchange);
+                  } else {
+                      int requestTaskId = getRequestTaskId(rawQuery);
+                      handleDeleteTaskByIdRequest(requestTaskId, requestTaskType, exchange);
+                  }
                   break;
               default:
                   System.out.println("Запрос не обработан");
@@ -78,81 +100,161 @@ public class HttpTaskServer {
           inputStream.close();
       }
 
-      private void handleGetRequest
-              (String[] pathParts,
-               HttpExchange exchange,
-               OutputStream outputStream) throws IOException {
-          if (pathParts[pathParts.length - 1].equals("task")) {
-              httpGetTasks(exchange, outputStream);
-          } else if (exchange.getRequestURI().getPath().contains("/task/id=")) {
-              httpGetTaskById(exchange, outputStream);
-          } else if (pathParts[pathParts.length - 1].equals("subtask")) {
-              httpGetSubtasks(exchange, outputStream);
-          } else if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
-              httpGetSubtaskById(exchange, outputStream);
-          } else if (pathParts[pathParts.length - 1].equals("epic")) {
-              httpGetEpics(exchange, outputStream);
-          } else if (exchange.getRequestURI().getPath().contains("epic/id=")) {
-              httpGetEpicById(exchange, outputStream);
-          } else if (pathParts[pathParts.length - 1].equals("history")) {
-              httpGetHistory(exchange, outputStream);
-          } else if (pathParts[pathParts.length - 1].equals("priorities")) {
-              httpGetPriorities(exchange, outputStream);
-          } else {
-              String response = "Неизвестный запрос. Проверьте URL.";
-              exchange.sendResponseHeaders(404, 0);
-              try (OutputStream os = exchange.getResponseBody()) {
-                  os.write(response.getBytes());
-              }
+      private String getRequestTaskType(HttpExchange exchange){
+          String[] pathParts = exchange.getRequestURI().getPath().split("/");
+          return pathParts[pathParts.length - 1];
+      }
+      private int getRequestTaskId(String rawQuery){
+          String[] queryParts = rawQuery.split("=");
+          return Integer.parseInt(queryParts[1]);
+      }
+
+      private void handleGetAllTasksRequest(
+              String requestTaskType,
+              HttpExchange exchange,
+              OutputStream outputStream) throws IOException {
+          switch (requestTaskType) {
+              case HTTP_TYPE_TASK:
+                  httpGetTasks(exchange, outputStream);
+                  break;
+              case HTTP_TYPE_SUBTASK:
+                  httpGetSubtasks(exchange, outputStream);
+                  break;
+              case HTTP_TYPE_EPIC:
+                  httpGetEpics(exchange, outputStream);
+                  break;
+              case HTTP_TYPE_HISTORY:
+                  httpGetHistory(exchange, outputStream);
+                  break;
+              case HTTP_TYPE_PRIORITIES:
+                  httpGetPriorities(exchange, outputStream);
+                  break;
+              default:
+                  String response = "Неизвестный запрос. Проверьте URL.";
+                  exchange.sendResponseHeaders(404, 0);
+                  try (OutputStream os = exchange.getResponseBody()) {
+                      os.write(response.getBytes());
+                  }
           }
       }
 
-      private void handlePostRequest
-              (String[] pathParts,
+      private void handleGetByIdRequest(
+              int requestTaskId,
+              String requestTaskType,
+              HttpExchange exchange,
+              OutputStream outputStream) throws IOException { //("http://localhost:8080/tasks/task/id=1")
+          switch (requestTaskType) {
+              case HTTP_TYPE_TASK:
+                  httpGetTaskById(requestTaskId, exchange, outputStream);
+                  break;
+              case HTTP_TYPE_SUBTASK:
+                  httpGetSubtaskById(requestTaskId, exchange, outputStream);
+                  break;
+              case HTTP_TYPE_EPIC:
+                  httpGetEpicById(requestTaskId, exchange, outputStream);
+                  break;
+              default:
+                  String response = "Неизвестный запрос. Проверьте URL.";
+                  exchange.sendResponseHeaders(404, 0);
+                  try (OutputStream os = exchange.getResponseBody()) {
+                      os.write(response.getBytes());
+                  }
+          }
+      }
+
+      private void handlePostNewTaskRequest
+              (String requestTaskType,
                HttpExchange exchange,
                InputStream inputStream) throws IOException {
-          if (pathParts[pathParts.length - 1].equals("task")) {
-              httpPostNewTask(exchange, inputStream);
-          } else if (exchange.getRequestURI().getPath().contains("/task/id=")) {
-              httpUpdateTask(exchange, inputStream);
-          } else if (pathParts[pathParts.length - 1].equals("subtask")) {
-              httpPostNewSubtask(exchange, inputStream);
-          } else if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
-              httpUpdateSubtask(exchange, inputStream);
-          } else if (pathParts[pathParts.length - 1].equals("epic")) {
-              httpPostNewEpic(exchange, inputStream);
-          } else if (exchange.getRequestURI().getPath().contains("epic/id=")) {
-              httpUpdateEpic(exchange, inputStream);
-          } else {
-              String response = "Неизвестный запрос. Проверьте URL.";
-              exchange.sendResponseHeaders(404, 0);
-              try (OutputStream os = exchange.getResponseBody()) {
-                  os.write(response.getBytes());
-              }
+          switch (requestTaskType) {
+              case HTTP_TYPE_TASK:
+                  httpPostNewTask(exchange, inputStream);
+                  break;
+              case HTTP_TYPE_SUBTASK:
+                  httpPostNewSubtask(exchange, inputStream);
+                  break;
+              case HTTP_TYPE_EPIC:
+                  httpPostNewEpic(exchange, inputStream);
+                  break;
+              default:
+                  String response = "Неизвестный запрос. Проверьте URL.";
+                  exchange.sendResponseHeaders(404, 0);
+                  try (OutputStream os = exchange.getResponseBody()) {
+                      os.write(response.getBytes());
+                  }
           }
       }
 
-      private void handleDeleteRequest(String[] pathParts, HttpExchange exchange) throws IOException {
-          if (pathParts[pathParts.length - 1].equals("task")) {
-              httpDeleteTasks(exchange);
-          } else if (exchange.getRequestURI().getPath().contains("/task/id=")) {
-              httpDeleteTaskById(exchange);
-          } else if (pathParts[pathParts.length - 1].equals("subtask")) {
-              httpDeleteSubtasks(exchange);
-          } else if (exchange.getRequestURI().getPath().contains("subtask/id=")) {
-              httpDeleteSubtaskById(exchange);
-          } else if (pathParts[pathParts.length - 1].equals("epic")) {
-              httpDeleteEpics(exchange);
-          } else if (exchange.getRequestURI().getPath().contains("epic/id=")) {
-              httpDeleteEpicById(exchange);
-          } else if (pathParts[pathParts.length - 1].equals("all")) {
-              httpDeleteAllTaskTypes(exchange);
-          }  else {
-              String response = "Неизвестный запрос. Проверьте URL.";
-              exchange.sendResponseHeaders(404, 0);
-              try (OutputStream os = exchange.getResponseBody()) {
-                  os.write(response.getBytes());
-              }
+
+      private void handlePostUpdatedTaskRequest(
+              int requestTaskId,
+              String requestTaskType,
+              HttpExchange exchange,
+              InputStream inputStream) throws IOException {
+        switch (requestTaskType) {
+            case HTTP_TYPE_TASK:
+                httpUpdateTask(requestTaskId, exchange, inputStream);
+                break;
+            case HTTP_TYPE_SUBTASK:
+                httpUpdateSubtask(requestTaskId, exchange, inputStream);
+                break;
+            case HTTP_TYPE_EPIC:
+                httpUpdateEpic(requestTaskId, exchange, inputStream);
+                break;
+            default:
+                String response = "Неизвестный запрос. Проверьте URL.";
+                exchange.sendResponseHeaders(404, 0);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+        }
+      }
+
+      private void handleDeleteAllTasksRequest(
+              String requestTaskType,
+              HttpExchange exchange) throws IOException {
+          switch (requestTaskType) {
+              case HTTP_TYPE_TASK:
+                  httpDeleteTasks(exchange);
+                  break;
+              case HTTP_TYPE_SUBTASK:
+                  httpDeleteSubtasks(exchange);
+                  break;
+              case HTTP_TYPE_EPIC:
+                  httpDeleteEpics(exchange);
+                  break;
+              case HTTP_TYPE_ALL_TASKS:
+                  httpDeleteAllTaskTypes(exchange);
+                  break;
+              default:
+                  String response = "Неизвестный запрос. Проверьте URL.";
+                  exchange.sendResponseHeaders(404, 0);
+                  try (OutputStream os = exchange.getResponseBody()) {
+                      os.write(response.getBytes());
+                  }
+          }
+      }
+
+      private void handleDeleteTaskByIdRequest(
+              int id,
+              String requestTaskType,
+              HttpExchange exchange) throws IOException {
+          switch (requestTaskType) {
+              case HTTP_TYPE_TASK:
+                  httpDeleteTaskById(id, exchange);
+                  break;
+              case HTTP_TYPE_SUBTASK:
+                  httpDeleteSubtaskById(id, exchange);
+                  break;
+              case HTTP_TYPE_EPIC:
+                  httpDeleteEpicById(id, exchange);
+                  break;
+              default:
+                  String response = "Неизвестный запрос. Проверьте URL.";
+                  exchange.sendResponseHeaders(404, 0);
+                  try (OutputStream os = exchange.getResponseBody()) {
+                      os.write(response.getBytes());
+                  }
           }
       }
 
@@ -183,10 +285,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpDeleteEpicById(HttpExchange exchange) throws IOException {
+      private void httpDeleteEpicById(int id, HttpExchange exchange) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               taskManager.deleteEpicById(id);
               String response = "Эпик номер " + id + " и входящие в него подзадачи удалены.";
               exchange.sendResponseHeaders(202, 0);
@@ -207,10 +307,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpDeleteSubtaskById(HttpExchange exchange) throws IOException {
+      private void httpDeleteSubtaskById(int id, HttpExchange exchange) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               taskManager.deleteSubtaskById(id);
               String response = "Подзадача номер " + id + " удалена.";
               exchange.sendResponseHeaders(202, 0);
@@ -235,10 +333,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpDeleteTaskById(HttpExchange exchange) throws IOException {
+      private void httpDeleteTaskById(int id, HttpExchange exchange) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               taskManager.deleteTaskById(id);
               String response = "Задача номер " + id + " удалена.";
               exchange.sendResponseHeaders(202, 0);
@@ -270,10 +366,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpUpdateEpic(HttpExchange exchange, InputStream inputStream) throws IOException {
+      private void httpUpdateEpic(int id, HttpExchange exchange, InputStream inputStream) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
               Epic epic = gson.fromJson(body, Epic.class);
               epic.setId(id);
@@ -288,10 +382,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpUpdateSubtask(HttpExchange exchange, InputStream inputStream) throws IOException {
+      private void httpUpdateSubtask(int id, HttpExchange exchange, InputStream inputStream) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
               Subtask subtask = gson.fromJson(body, Subtask.class);
               subtask.setId(id);
@@ -336,10 +428,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpUpdateTask(HttpExchange exchange, InputStream inputStream) throws IOException {
+      private void httpUpdateTask(int id, HttpExchange exchange, InputStream inputStream) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
               Task task = gson.fromJson(body, Task.class);
               task.setId(id);
@@ -367,10 +457,8 @@ public class HttpTaskServer {
           outputStream.write(jsonTask.getBytes(DEFAULT_CHARSET));
       }
 
-      private void httpGetTaskById(HttpExchange exchange, OutputStream outputStream) throws IOException {
+      private void httpGetTaskById(int id, HttpExchange exchange, OutputStream outputStream) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               String jsonTask = gson.toJson(taskManager.findTaskById(id));
               exchange.sendResponseHeaders(200, 0);
               outputStream = exchange.getResponseBody();
@@ -380,10 +468,8 @@ public class HttpTaskServer {
           }
       }
 
-      private void httpGetSubtaskById(HttpExchange exchange, OutputStream outputStream) throws IOException {
+      private void httpGetSubtaskById(int id, HttpExchange exchange, OutputStream outputStream) throws IOException {
           try {
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               String jsonTask = gson.toJson(taskManager.findSubtaskById(id));
               exchange.sendResponseHeaders(200, 0);
               outputStream = exchange.getResponseBody();
@@ -400,10 +486,8 @@ public class HttpTaskServer {
           outputStream.write(jsonTask.getBytes(DEFAULT_CHARSET));
       }
 
-      private void httpGetEpicById(HttpExchange exchange, OutputStream outputStream) throws IOException {
+      private void httpGetEpicById(int id, HttpExchange exchange, OutputStream outputStream) throws IOException {
           try{
-              String[] uriParts = exchange.getRequestURI().getPath().split("=");
-              int id = Integer.parseInt(uriParts[1]);
               String jsonTask = gson.toJson(taskManager.findEpicById(id));
               exchange.sendResponseHeaders(200, 0);
               outputStream = exchange.getResponseBody();

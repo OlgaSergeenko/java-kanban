@@ -11,10 +11,7 @@ import java.util.Optional;
 
 public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
 
-    File file;
-
     public FileBackedTasksManager(File file) {
-        this.file = file;
     }
 
     public FileBackedTasksManager() {

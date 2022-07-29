@@ -14,8 +14,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Integer, Task> tasks;
     protected HashMap<Integer, Subtask> subtasks;
     protected HashMap<Integer, Epic> epics;
-    TaskStartTimeComparator taskStartTimeComparator;
-    TaskIdComparator taskIdComparator;
+    private final TaskStartTimeComparator taskStartTimeComparator;
+    private final TaskIdComparator taskIdComparator;
     protected Set<Task> prioritizedTasks;
     protected Set<Task> allTasks;
     protected HistoryManager historyManager;

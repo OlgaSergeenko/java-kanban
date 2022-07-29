@@ -23,14 +23,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskServerTest {
-    KVServer kvServer;
-    HttpTaskServer httpTaskServer;
-    HttpClient client;
-    Task task1;
-    Task task2;
-    Epic epic;
-    Subtask subtask;
-    Gson gson;
+    private KVServer kvServer;
+    private HttpTaskServer httpTaskServer;
+    private HttpClient client;
+    private Task task1;
+    private Task task2;
+    private Epic epic;
+    private Subtask subtask;
+    private Gson gson;
 
     @BeforeEach
     public void BeforeEach() throws IOException {
@@ -68,7 +68,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response1 = client.send(request1, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response1.statusCode(), "Неверный статус-код при создании задачи.");
 
-        URI url2 = URI.create("http://localhost:8080/tasks/task/id=1");
+        URI url2 = URI.create("http://localhost:8080/tasks/task?id=1");
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).GET().build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         String jsonTask = response2.body();
@@ -112,7 +112,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response1 = client.send(request1, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response1.statusCode(), "Неверный статус-код при создании эпика.");
 
-        URI url2 = URI.create("http://localhost:8080/tasks/epic/id=3");
+        URI url2 = URI.create("http://localhost:8080/tasks/epic?id=3");
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).GET().build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         String jsonTask = response2.body();
@@ -120,7 +120,7 @@ class HttpTaskServerTest {
         assertEquals(200, response2.statusCode(), "Неверный статус-код при получении эпика'.");
         assertEquals(epic, epicReceived, "Эпики не совпадают.");
 
-        URI url3 = URI.create("http://localhost:8080/tasks/epic/id=3");
+        URI url3 = URI.create("http://localhost:8080/tasks/epic?id=3");
         Epic updatedEpic = new Epic("EpicNewName", "Descr1", null,0);
         updatedEpic.setId(3);
         json = gson.toJson(updatedEpic);
@@ -161,7 +161,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response2.statusCode(), "Неверный статус-код при создании подзадачи.");
 
-        URI url3 = URI.create("http://localhost:8080/tasks/subtask/id=4");
+        URI url3 = URI.create("http://localhost:8080/tasks/subtask?id=4");
         HttpRequest request3 = HttpRequest.newBuilder().uri(url3).GET().build();
         HttpResponse<String> response3 = client.send(request3, HttpResponse.BodyHandlers.ofString());
         String jsonTask = response3.body();
@@ -198,7 +198,7 @@ class HttpTaskServerTest {
 
     @Test
     public void shouldDeleteAllTaskTypes() throws IOException, InterruptedException {
-        URI url = URI.create("http://localhost:8080/tasks/task/all");
+        URI url = URI.create("http://localhost:8080/tasks/all");
         HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(202, response.statusCode(), "Ошибка при удалении всех задач");
@@ -210,7 +210,7 @@ class HttpTaskServerTest {
         final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(gson.toJson(task1));
         HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        URI url2 = URI.create("http://localhost:8080/tasks/task/id=1");
+        URI url2 = URI.create("http://localhost:8080/tasks/task?id=1");
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).GET().build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
 

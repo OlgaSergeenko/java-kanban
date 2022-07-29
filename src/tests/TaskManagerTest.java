@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public abstract class TaskManagerTest<T extends TaskManager> {
 
     public T taskManager;
-    Task task;
-    Epic epic;
-    Epic epic2;
-    Subtask subtask2;
-    Subtask subtask3;
-    Epic epic3;
-    Subtask subtask4;
+    private Task task;
+    private Epic epic;
+    private Epic epic2;
+    private Subtask subtask2;
+    private Subtask subtask3;
+    private Epic epic3;
+    private Subtask subtask4;
 
     public abstract TaskManager createTaskManager();
 
